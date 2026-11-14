@@ -43,6 +43,8 @@ export default function Dashboard() {
   } = useFinancialInsights();
 
   const [quickInput, setQuickInput] = useState('');
+  const [quickFeedback, setQuickFeedback] = useState('');
+  const [quickFeedbackError, setQuickFeedbackError] = useState(false);
 
   // Natural Language Quick Add Handler
   const handleQuickAdd = (e) => {
@@ -50,12 +52,19 @@ export default function Dashboard() {
     if (!quickInput.trim()) return;
 
     let text = quickInput.trim();
-    let amount = 250.00;
-    const amountMatch = text.match(/(?:₹|rs\.?|\$|usd)?\s*(\d+(?:\.\d{1,2})?)/i);
-    if (amountMatch) {
-      amount = parseFloat(amountMatch[1]);
-      text = text.replace(amountMatch[0], '').trim();
+    const amountMatch = text.match(/(?:₹|rs\.?|\$|usd)?\s*((?:\d{1,3}(?:,\d{2,3})+|\d+)(?:\.\d{1,2})?)/i);
+    if (!amountMatch) {
+      setQuickFeedback('Include an amount, such as ₹450, so it can be added accurately.');
+      setQuickFeedbackError(true);
+      return;
     }
+    const amount = Number(amountMatch[1].replace(/,/g, ''));
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setQuickFeedback('Enter an amount greater than zero.');
+      setQuickFeedbackError(true);
+      return;
+    }
+    text = text.replace(amountMatch[0], '').trim();
 
     const lower = text.toLowerCase();
     let category = 'Dining';
@@ -99,6 +108,8 @@ export default function Dashboard() {
       notes: 'Quick AI Parsed'
     }));
 
+    setQuickFeedback(`${title} · ${formatCurrency(amount)} added to your expenses.`);
+    setQuickFeedbackError(false);
     setQuickInput('');
   };
 
@@ -106,6 +117,11 @@ export default function Dashboard() {
     <div ref={pageRef} className="space-y-8 animate-fadeIn">
       {/* Hero Welcome & Quick Smart Entry */}
       <div data-reveal data-parallax-area className="bg-gradient-to-r from-nectar-forest via-nectar-emerald to-emerald-950 text-white rounded-3xl p-6 sm:p-8 shadow-nectar-float relative overflow-hidden">
+        <div className="dashboard-float-shape dashboard-float-coin" data-parallax="30" aria-hidden="true">
+          <span>₹</span>
+        </div>
+        <div className="dashboard-float-shape dashboard-float-orbit" data-parallax="-22" aria-hidden="true" />
+
         <div className="relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-nectar-mint text-xs font-semibold mb-3">
             <Sparkles className="w-3.5 h-3.5" />
@@ -123,7 +139,11 @@ export default function Dashboard() {
             <input
               type="text"
               value={quickInput}
-              onChange={(e) => setQuickInput(e.target.value)}
+              onChange={(e) => {
+                setQuickInput(e.target.value);
+                setQuickFeedback('');
+                setQuickFeedbackError(false);
+              }}
               placeholder="e.g. ₹650 electricity, ₹240 lunch..."
               className="w-full text-xs sm:text-sm font-medium bg-transparent focus:outline-none"
             />
@@ -135,6 +155,27 @@ export default function Dashboard() {
               <Send className="w-4 h-4" />
             </button>
           </form>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2" aria-label="Quick expense examples">
+            <span className="text-[11px] text-gray-300">Try:</span>
+            {['₹450 dinner', '₹1,200 groceries', '₹280 Uber'].map((example) => (
+              <button
+                key={example}
+                type="button"
+                onClick={() => {
+                  setQuickInput(example);
+                  setQuickFeedback('');
+                  setQuickFeedbackError(false);
+                }}
+                className="quick-prompt-chip"
+              >
+                {example}
+              </button>
+            ))}
+          </div>
+          <p className={`min-h-5 mt-2 text-xs ${quickFeedbackError ? 'text-amber-200' : 'text-nectar-mint'}`} role="status" aria-live="polite">
+            {quickFeedback}
+          </p>
         </div>
 
         {/* Decorative backdrop glow */}

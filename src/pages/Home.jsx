@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { 
@@ -35,10 +35,29 @@ export default function Home() {
   // Simulator State in Hero/Landing
   const [income, setIncome] = useState(80000);
   const [activeTab, setActiveTab] = useState(0);
+  const [startingJourney, setStartingJourney] = useState(false);
+  const startTimeoutRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(startTimeoutRef.current), []);
+
+  const handleGetStarted = (event) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    if (startingJourney) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      navigate('/signup');
+      return;
+    }
+
+    setStartingJourney(true);
+    startTimeoutRef.current = setTimeout(() => navigate('/signup'), 850);
+  };
 
   const needs = income * 0.50;
   const wants = income * 0.30;
   const savings = income * 0.20;
+  const incomePresets = [40000, 80000, 120000];
 
   const flowTabs = [
     {
@@ -178,6 +197,13 @@ export default function Home() {
       <section data-reveal data-parallax-area className="pt-36 pb-20 px-6 sm:px-10 max-w-6xl mx-auto text-center relative overflow-hidden">
         <div className="hero-orb hero-orb-primary" data-parallax="28" />
         <div className="hero-orb hero-orb-secondary" data-parallax="-18" />
+        <div className="hero-float-shape hero-float-coin" data-parallax="34" aria-hidden="true">
+          <span>₹</span>
+        </div>
+        <div className="hero-float-shape hero-float-spark" data-parallax="-26" aria-hidden="true">
+          <span>✦</span>
+        </div>
+        <div className="hero-float-shape hero-float-orbit" data-parallax="18" aria-hidden="true" />
 
         <div className="relative z-10 max-w-3xl mx-auto space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-nectar-peach dark:bg-nectar-darkCard border border-nectar-peachDeep/10 dark:border-nectar-darkBorder text-nectar-peachDeep dark:text-nectar-mint text-xs font-semibold">
@@ -209,6 +235,8 @@ export default function Home() {
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               to="/signup"
+              onClick={handleGetStarted}
+              aria-disabled={startingJourney}
               className="btn-nectar btn-nectar-primary text-base py-3.5 px-8 shadow-nectar hover:shadow-nectar-float w-full sm:w-auto"
             >
               <span>Get Started Free</span>
@@ -221,6 +249,98 @@ export default function Home() {
             >
               <span>Explore Demo Dashboard</span>
             </Link>
+          </div>
+        </div>
+
+        <div data-reveal className="hero-product-preview relative z-10 mx-auto mt-16 max-w-5xl text-left">
+          <div className="hero-preview-frame interactive-card overflow-hidden rounded-[2rem] border border-nectar-forest/10 dark:border-nectar-darkBorder">
+            <div className="hero-preview-chrome flex items-center justify-between border-b border-nectar-forest/10 dark:border-nectar-darkBorder px-5 py-4 sm:px-7">
+              <div className="flex items-center gap-2" aria-hidden="true">
+                <span className="hero-window-dot bg-rose-300" />
+                <span className="hero-window-dot bg-amber-300" />
+                <span className="hero-window-dot bg-emerald-400" />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400">
+                Nectar · Your money dashboard
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-nectar-emerald dark:text-nectar-mint">
+                <span className="h-1.5 w-1.5 rounded-full bg-nectar-leaf" />
+                Live preview
+              </span>
+            </div>
+
+            <div className="grid gap-8 p-5 sm:p-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:p-10">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-nectar-emerald dark:text-nectar-mint">
+                  A calmer way to spend
+                </p>
+                <h2 className="mt-3 max-w-md font-serif text-3xl font-medium leading-tight tracking-tight text-nectar-forest dark:text-nectar-mint sm:text-4xl">
+                  {user?.name ? `${user.name.split(' ')[0]}'s money, in balance.` : 'Your money, in balance.'}
+                </h2>
+                <p className="mt-3 max-w-sm text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                  A clear plan for every rupee, shaped around your monthly take-home.
+                </p>
+
+                <div className="mt-7 flex flex-wrap items-end gap-x-8 gap-y-4">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Monthly income</p>
+                    <p key={income} className="mt-1 font-serif text-2xl font-bold text-nectar-forest dark:text-white value-change">
+                      {formatCurrency(income).split('.')[0]}
+                    </p>
+                  </div>
+                  <a href="#simulator" className="hero-preview-link">
+                    Tune your plan <ArrowRight className="h-3.5 w-3.5" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="hero-preview-allocation rounded-3xl border border-nectar-forest/10 dark:border-nectar-darkBorder p-5 sm:p-6">
+                <div className="mb-5 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-nectar-forest dark:text-nectar-mint">Your monthly plan</p>
+                    <p className="mt-0.5 text-[11px] text-gray-400">Balanced around the 50 / 30 / 20 rule</p>
+                  </div>
+                  <TrendingUp className="h-4 w-4 text-nectar-emerald dark:text-nectar-mint" />
+                </div>
+
+                <div className="flex flex-col items-center gap-6 sm:flex-row">
+                  <div
+                    className="hero-preview-ring shrink-0"
+                    role="img"
+                    aria-label={`Income allocated: 50 percent needs, 30 percent wants, 20 percent savings`}
+                  >
+                    <div className="hero-preview-ring-center">
+                      <strong>100%</strong>
+                      <span>planned</span>
+                    </div>
+                  </div>
+
+                  <div className="w-full space-y-4">
+                    {[
+                      { label: 'Essentials', value: needs, percent: 50, color: 'needs' },
+                      { label: 'Lifestyle', value: wants, percent: 30, color: 'wants' },
+                      { label: 'Savings', value: savings, percent: 20, color: 'savings' }
+                    ].map((item) => (
+                      <div key={item.label}>
+                        <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
+                          <span className="flex items-center gap-2 font-semibold text-gray-600 dark:text-gray-300">
+                            <span className={`hero-allocation-dot hero-allocation-${item.color}`} />
+                            {item.label}
+                          </span>
+                          <span className="font-mono font-bold text-nectar-forest dark:text-nectar-mint">
+                            {formatCurrency(item.value).split('.')[0]}
+                            <span className="ml-1.5 text-[10px] font-medium text-gray-400">{item.percent}%</span>
+                          </span>
+                        </div>
+                        <div className="hero-allocation-track">
+                          <span className={`hero-allocation-fill hero-allocation-${item.color}`} style={{ width: `${item.percent}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -274,7 +394,7 @@ export default function Home() {
 
           {/* Right Live Device Simulator */}
           <div className="lg:col-span-6 flex justify-center">
-            <div className="w-full max-w-sm bg-nectar-canvas dark:bg-nectar-darkBg rounded-3xl p-6 border border-nectar-forest/15 dark:border-nectar-darkBorder shadow-nectar-float space-y-5 animate-fadeIn">
+            <div key={activeTab} className="w-full max-w-sm bg-nectar-canvas dark:bg-nectar-darkBg rounded-3xl p-6 border border-nectar-forest/15 dark:border-nectar-darkBorder shadow-nectar-float space-y-5 animate-fadeIn">
               <div className="w-20 h-3.5 rounded-full bg-gray-200 dark:bg-nectar-darkCard mx-auto" />
 
               <div className="bg-white dark:bg-nectar-darkCard rounded-2xl p-5 border border-nectar-forest/10 dark:border-nectar-darkBorder shadow-sm space-y-3">
@@ -358,6 +478,20 @@ export default function Home() {
               <span>₹20,000 / mo</span>
               <span>₹1,50,000 / mo</span>
               <span>₹3,00,000+ / mo</span>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+              <span className="mr-1 text-[11px] font-semibold text-gray-500 dark:text-gray-400">Quick set:</span>
+              {incomePresets.map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  aria-pressed={income === preset}
+                  onClick={() => setIncome(preset)}
+                  className={`income-preset-chip ${income === preset ? 'is-selected' : ''}`}
+                >
+                  {formatCurrency(preset).split('.')[0]}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -461,6 +595,8 @@ export default function Home() {
           <div className="pt-2">
             <Link
               to="/signup"
+              onClick={handleGetStarted}
+              aria-disabled={startingJourney}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-nectar-mint text-nectar-forest font-bold text-sm hover:bg-emerald-200 transition-transform active:scale-95 shadow-lg"
             >
               <span>Create Free Account</span>
@@ -491,6 +627,19 @@ export default function Home() {
           </p>
         </div>
       </footer>
+
+      {startingJourney && (
+        <div className="rupee-journey-overlay" role="status" aria-live="polite">
+          <div className="rupee-journey-card">
+            <span className="rupee-journey-spark rupee-journey-spark-one" aria-hidden="true">✦</span>
+            <span className="rupee-journey-spark rupee-journey-spark-two" aria-hidden="true">✧</span>
+            <div className="rupee-journey-coin" aria-hidden="true">₹</div>
+            <p className="text-sm font-bold text-nectar-forest dark:text-nectar-mint">
+              Your money journey starts here
+            </p>
+          </div>
+        </div>
+      )}
 
     </div>
   );

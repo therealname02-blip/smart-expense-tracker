@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { X, Check } from 'lucide-react';
 import { addExpense, updateExpense } from '../redux/slices/expenseSlice';
@@ -17,6 +17,7 @@ const CATEGORIES = [
 
 export default function ExpenseModal({ isOpen, onClose, expenseToEdit }) {
   const dispatch = useDispatch();
+  const dialogRef = useRef(null);
 
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
@@ -47,6 +48,50 @@ export default function ExpenseModal({ isOpen, onClose, expenseToEdit }) {
     }
     setError('');
   }, [expenseToEdit, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const previousActiveElement = document.activeElement;
+    dialogRef.current?.focus();
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusableElements = dialogRef.current?.querySelectorAll(
+        'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]'
+      );
+      if (!focusableElements?.length) {
+        event.preventDefault();
+        dialogRef.current?.focus();
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      if (event.shiftKey && (document.activeElement === firstElement || document.activeElement === dialogRef.current)) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+      if (previousActiveElement instanceof HTMLElement) previousActiveElement.focus();
+    };
+  }, [isOpen, onClose]);
 
   const handleCategorySelect = (catId) => {
     setCategory(catId);
@@ -91,15 +136,25 @@ export default function ExpenseModal({ isOpen, onClose, expenseToEdit }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+    <div
+      className="expense-modal-overlay fixed inset-0 z-50 flex items-start sm:items-center justify-center overflow-y-auto p-4 bg-black/50 backdrop-blur-sm animate-fadeIn"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div 
-        className="w-full max-w-lg bg-white dark:bg-nectar-darkCard rounded-3xl border border-nectar-forest/15 dark:border-nectar-darkBorder shadow-nectar-float p-6 sm:p-8 relative"
+        className="expense-modal-panel w-full max-w-lg bg-white dark:bg-nectar-darkCard rounded-3xl border border-nectar-forest/15 dark:border-nectar-darkBorder shadow-nectar-float p-6 sm:p-8 relative"
         onClick={(e) => e.stopPropagation()}
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="expense-modal-title"
+        tabIndex="-1"
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-nectar-darkBorder mb-6">
           <div>
-            <h3 className="text-xl font-bold font-serif text-nectar-forest dark:text-nectar-mint">
+            <h3 id="expense-modal-title" className="text-xl font-bold font-serif text-nectar-forest dark:text-nectar-mint">
               {expenseToEdit ? 'Edit Expense' : 'Add New Expense'}
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -109,13 +164,14 @@ export default function ExpenseModal({ isOpen, onClose, expenseToEdit }) {
           <button
             onClick={onClose}
             className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-nectar-darkBg"
+            aria-label="Close expense dialog"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 text-xs font-semibold">
+          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 text-xs font-semibold" role="alert">
             {error}
           </div>
         )}
@@ -179,6 +235,7 @@ export default function ExpenseModal({ isOpen, onClose, expenseToEdit }) {
                   type="button"
                   key={cat.id}
                   onClick={() => handleCategorySelect(cat.id)}
+                  aria-pressed={category === cat.id}
                   className={`
                     px-2.5 py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 border transition-all
                     ${category === cat.id 
