@@ -1,0 +1,435 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@keyframes nectar-value-change {
+  from {
+    opacity: 0.55;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-orb {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(48px);
+  transition: transform 180ms ease-out;
+}
+
+.hero-orb-primary {
+  top: 8%;
+  left: 18%;
+  width: min(42vw, 32rem);
+  height: min(42vw, 32rem);
+  background: rgba(209, 250, 223, 0.72);
+  transform: translate3d(var(--move-x, 0px), var(--move-y, 0px), 0);
+}
+
+.hero-orb-secondary {
+  right: 12%;
+  bottom: 4%;
+  width: min(32vw, 24rem);
+  height: min(32vw, 24rem);
+  background: rgba(254, 233, 209, 0.58);
+  transform: translate3d(var(--move-x, 0px), var(--move-y, 0px), 0);
+}
+
+.dark .hero-orb-primary {
+  background: rgba(11, 116, 67, 0.2);
+}
+
+.dark .hero-orb-secondary {
+  background: rgba(254, 233, 209, 0.08);
+}
+
+.cursor-reactive-headline {
+  cursor: crosshair;
+}
+
+.headline-line {
+  display: block;
+}
+
+.headline-word {
+  display: inline-block;
+  margin-right: 0.2em;
+  opacity: var(--word-opacity, 1);
+  filter: blur(calc((1 - var(--word-opacity, 1)) * 1.5px));
+  transform: translateY(calc((1 - var(--word-opacity, 1)) * -3px));
+  transition: opacity 75ms linear, filter 75ms linear, transform 75ms linear;
+  will-change: opacity, filter, transform;
+}
+
+.headline-word:last-child {
+  margin-right: 0;
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 650ms ease, transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.interactive-card {
+  transform-style: preserve-3d;
+  transition: transform 180ms ease-out, box-shadow 240ms ease, border-color 240ms ease;
+}
+
+.interactive-card:hover {
+  transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(-4px);
+  box-shadow: 0 24px 48px -16px rgba(5, 79, 49, 0.16), 0 8px 18px -8px rgba(5, 79, 49, 0.08);
+}
+
+@media (max-width: 640px) {
+  .hero-orb {
+    filter: blur(32px);
+  }
+}
+
+.btn-nectar:hover,
+button:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.btn-nectar:active,
+button:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.value-change {
+  animation: nectar-value-change 220ms ease-out;
+}
+
+input,
+select,
+textarea {
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+input[type="range"] {
+  accent-color: #054F31;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 6px rgba(5, 79, 49, 0.12);
+}
+
+input[type="range"]::-moz-range-thumb {
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 6px rgba(5, 79, 49, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Nectar Signature Pill Button with scale-fill effect */
+.btn-nectar {
+  @apply relative inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-200 overflow-hidden active:scale-95;
+}
+
+.btn-nectar-primary {
+  @apply bg-nectar-forest text-white hover:text-nectar-mint hover:bg-nectar-emerald dark:bg-nectar-emerald dark:hover:bg-nectar-forest shadow-sm;
+}
+
+.btn-nectar-secondary {
+  @apply bg-white dark:bg-nectar-darkCard text-nectar-forest dark:text-nectar-mint border border-nectar-forest/15 dark:border-nectar-darkBorder hover:bg-nectar-wasabi dark:hover:bg-nectar-darkBg;
+}
+
+.btn-nectar-mint {
+  @apply bg-nectar-mint text-nectar-forest hover:bg-emerald-200 font-bold;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-600;
+}
+
+::selection {
+  color: #054f31;
+  background: #d1fadf;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+body {
+  min-width: 320px;
+  background-image:
+    radial-gradient(ellipse at 5% 0%, rgba(209, 250, 223, 0.18), transparent 38%),
+    radial-gradient(ellipse at 100% 30%, rgba(254, 233, 209, 0.14), transparent 34%);
+  background-attachment: fixed;
+}
+
+.dark body {
+  background-image:
+    radial-gradient(ellipse at 5% 0%, rgba(11, 116, 67, 0.1), transparent 38%),
+    radial-gradient(ellipse at 100% 30%, rgba(254, 233, 209, 0.035), transparent 34%);
+}
+
+@keyframes nectar-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nectar-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: nectar-fade-up 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Softer depth and crisp focus feedback across controls. */
+:focus-visible {
+  outline: 3px solid rgba(11, 116, 67, 0.42);
+  outline-offset: 3px;
+}
+
+.dark :focus-visible {
+  outline-color: rgba(209, 250, 223, 0.58);
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+button:not(:disabled),
+a {
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 220ms ease,
+    transform 180ms ease;
+}
+
+.btn-nectar {
+  isolation: isolate;
+  box-shadow: 0 5px 14px rgba(5, 79, 49, 0.1);
+}
+
+.btn-nectar-primary {
+  background-image: linear-gradient(115deg, #054f31 0%, #0b7443 50%, #087448 100%);
+  background-size: 180% 100%;
+  background-position: 0 0;
+}
+
+.btn-nectar-primary:hover {
+  background-position: 100% 0;
+  box-shadow: 0 10px 24px rgba(5, 79, 49, 0.2);
+}
+
+.btn-nectar-secondary:hover {
+  border-color: rgba(5, 79, 49, 0.32);
+  box-shadow: 0 8px 18px rgba(5, 79, 49, 0.08);
+}
+
+.dark .btn-nectar-secondary:hover {
+  border-color: rgba(209, 250, 223, 0.35);
+}
+
+.interactive-card {
+  position: relative;
+  background-clip: padding-box;
+}
+
+.interactive-card::after {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(11, 116, 67, 0);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+  transition: border-color 220ms ease;
+}
+
+.interactive-card:hover::after {
+  border-color: rgba(11, 116, 67, 0.17);
+}
+
+.dark .interactive-card:hover::after {
+  border-color: rgba(209, 250, 223, 0.13);
+}
+
+input:not([type="range"]):focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(11, 116, 67, 0.55);
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(11, 116, 67, 0.1);
+}
+
+.dark input:not([type="range"]):focus,
+.dark select:focus,
+.dark textarea:focus {
+  background-color: #09110d;
+  box-shadow: 0 0 0 4px rgba(209, 250, 223, 0.08);
+}
+
+input[type="range"] {
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #0b7443, #61bc76);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  appearance: none;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #054f31;
+  box-shadow: 0 2px 8px rgba(5, 79, 49, 0.3);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #054f31;
+  box-shadow: 0 2px 8px rgba(5, 79, 49, 0.3);
+}
+
+table tbody tr {
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+table tbody tr:hover {
+  background-color: rgba(242, 249, 235, 0.72);
+}
+
+.dark table tbody tr:hover {
+  background-color: rgba(26, 46, 34, 0.55);
+}
+
+table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  backdrop-filter: blur(12px);
+}
+
+[role="dialog"] > div,
+.fixed.inset-0.z-50 > div {
+  animation: nectar-modal-in 240ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Let color and motion respond to theme changes without abrupt flashes. */
+body,
+header,
+aside,
+main,
+section,
+article {
+  transition: background-color 240ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+@media (hover: none) {
+  .interactive-card:hover {
+    transform: none;
+    box-shadow: inherit;
+  }
+
+  .interactive-card:hover::after {
+    border-color: transparent;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    background-attachment: scroll;
+  }
+
+  .interactive-card {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-fadeIn {
+    animation: none;
+  }
+}
